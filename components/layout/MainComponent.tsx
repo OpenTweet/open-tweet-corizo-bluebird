@@ -1,3 +1,6 @@
+import { getTweets } from '@/lib/supabase/queries';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import Link from 'next/link';
 import { BiBarChart } from 'react-icons/bi';
 import { BsThreeDots } from 'react-icons/bs';
@@ -6,7 +9,12 @@ import { FiSettings, FiShare } from 'react-icons/fi';
 import { LuDot, LuRepeat2 } from 'react-icons/lu';
 import ComposeTweet from '../server-components/compose-tweet';
 
-export default function MainComponent() {
+dayjs.extend(relativeTime);
+
+export default async function MainComponent() {
+
+    const res = await getTweets();
+
     return <main className=' flex w-[600px] h-full min-h-screen flex-col border-l-[0.5px] border-r-[0.5px] twitter-border-color'>
         <nav className='fixed bg-black backdrop-blur-sm bg-opacity-55 font-semibold z-40 w-[600px] flex flex-row text-center border-b-[0.5px] border-r-[0.5px] twitter-border-color text-sm h-[55px]'>
             <Link
@@ -42,7 +50,11 @@ export default function MainComponent() {
         {/* Posts Section */}
 
         <div className='posts flex flex-col'>
-            {Array.from({ length: 10 }).map((_, i) => (
+            {
+                res?.error && <div>Something wrong with the server</div>
+            }
+
+            {res?.data && res?.data.map((tweet: any, i: number) => (
                 <div key={i} className='flex flex-row border-t-[0.5px] twitter-border-color'>
                     <div className='userIcon p-3 pe-1'>
                         <div className='w-10 h-10 bg-slate-400 rounded-full'></div>
@@ -50,12 +62,12 @@ export default function MainComponent() {
                     <div className='postContent p-1 px-2 w-full'>
                         <header className='flex flex-row w-full items-center justify-between'>
                             <div className='flex flex-row items-center space-x-1'>
-                                <p className='font-bold text-sm'>User Name</p>
-                                <p className='text-sm text-gray-500'>@username</p>
+                                <p className='font-bold text-sm'>{tweet.profiles.full_name}</p>
+                                <p className='text-sm text-gray-500'>@{tweet.profiles.username}</p>
                                 <p className='text-sm text-gray-500'>
                                     <LuDot />
                                 </p>
-                                <p className='text-sm text-gray-500'>1h</p>
+                                <p className='text-sm text-gray-500'>{dayjs(tweet.created_at).fromNow()}</p>
                             </div>
                             <div className='flex flex-row items-center'>
                                 <p className='icon-hover text-gray-500 hover:bg-blue-500 hover:text-blue-500 hover:bg-opacity-25'>

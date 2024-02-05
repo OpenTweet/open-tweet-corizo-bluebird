@@ -1,9 +1,12 @@
 import createSupabaseServerClient from '@/lib/supabase/server';
-import { randomUUID } from 'crypto';
-import ComposeTweetForm from '../client-components/compose-tweet-form';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
+import { revalidatePath } from 'next/cache';
+import ComposeTweetForm from '../client-components/compose-tweet-form';
 
 export default function ComposeTweet() {
+
+
     async function submitTweet(formData: any) {
         "use server";
 
@@ -37,7 +40,8 @@ export default function ComposeTweet() {
             text: tweet.toString(),
             id: randomUUID()
         });
-        console.log({ data, error })
+
+        revalidatePath('/');
     }
 
     return <ComposeTweetForm serverAction={submitTweet} />

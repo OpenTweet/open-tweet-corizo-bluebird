@@ -1,11 +1,12 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useTransition } from "react";
 import toast from "react-hot-toast";
 import { FaRegFaceSmile } from 'react-icons/fa6';
 import { LuMapPin } from 'react-icons/lu';
 import { MdOutlineGifBox } from 'react-icons/md';
 import { RiGalleryLine, RiListCheck2 } from 'react-icons/ri';
 import { SlCalender } from 'react-icons/sl';
+import LoadingCircle from "../loading/loading-cirlce";
 
 type ComposeTweetFormProps = {
     serverAction: any;
@@ -13,15 +14,25 @@ type ComposeTweetFormProps = {
 
 const ComposeTweetForm = ({ serverAction }: ComposeTweetFormProps) => {
     const resetRef = useRef<HTMLButtonElement>(null);
+    const [isPending, startTransition] = useTransition();
 
     const handleSubmitTweet = async (data: any) => {
         try {
+            startTransition(() => {
+                isPending;
+            });
+
+            const tweet = data.get('tweet');
+            if (!tweet) return toast.error("Tweet cannot be empty!");
+
             const res = await serverAction(data);
+
             if (res?.error) {
                 return toast.error(res.error.message);
             }
             toast.success("Tweet sent successfully!");
             resetRef.current?.click();
+
         } catch (error) {
             console.log(error);
         }
@@ -58,10 +69,15 @@ const ComposeTweetForm = ({ serverAction }: ComposeTweetFormProps) => {
                     </div>
                 </div>
                 <button
-                    className='btn-primary p-2 px-5 text-sm'
+                    disabled={isPending}
+                    className={`btn-primary p-2 px-5 text-sm w-24`}
                 >
-                    Post
+                    {isPending ?
+                        <LoadingCircle /> :
+                        <p>Post</p>
+                    }
                 </button>
+                <button ref={resetRef} className="hidden" type="reset"></button>
             </div>
         </form>
     );
