@@ -8,7 +8,6 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-// import { Toaster, toast } from "sonner";
 
 
 type SupabaseContext = {
