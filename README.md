@@ -13,6 +13,21 @@ Run the development server:
 pnpm dev
 ```
 
+To migrate your database:
+
+```bash
+pnpm run migrate
+```
+(Also in supabase enable all low level policies of all tables)
+
+To generate your database:
+
+```bash
+pnpm run generate
+```
+
+
+
 Rename .env.local.example to .env.example
 then paste keys there from Supabase
 

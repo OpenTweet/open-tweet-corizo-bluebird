@@ -2,6 +2,7 @@ import LeftSideBar from '@/components/layout/LeftSidebar';
 import MainComponent from '@/components/layout/MainComponent';
 import RightSection from '@/components/layout/RightSection';
 
+export const revalidate = 0;
 
 export default function Home() {
   return (

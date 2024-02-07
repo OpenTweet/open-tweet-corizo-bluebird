@@ -8,7 +8,6 @@ import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
-// import { Toaster, toast } from "sonner";
 
 
 type SupabaseContext = {
@@ -37,7 +36,6 @@ export default function SupabaseProvider({
         } = supabase.auth.onAuthStateChange(() => {
             router.refresh();
         });
-
         supabase.auth.getSession().then((res: any) => {
             if (!res.data.session) {
                 setIsOpen(true);
@@ -57,7 +55,7 @@ export default function SupabaseProvider({
             <>
                 <Toaster />
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
-                    <DialogContent className="p-6">
+                    <DialogContent className="p-6 text-black">
                         <h3 className="text-lg my-1">Please sign in to continue</h3>
                         <form
                             onSubmit={async (e) => {
