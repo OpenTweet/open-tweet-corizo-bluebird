@@ -3,6 +3,9 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { randomUUID } from 'crypto';
 import { revalidatePath } from 'next/cache';
 import ComposeTweetForm from '../client-components/compose-tweet-form';
+import { db } from '@/lib/db';
+import { tweets } from '@/lib/db/schema';
+import getUserSession from '@/lib/getUserSession';
 
 export default function ComposeTweet() {
 
@@ -13,35 +16,31 @@ export default function ComposeTweet() {
         const tweet = formData.get('tweet');
 
         if (!tweet) return;
-
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-        const supabaseKey = process.env.SUPABASE_SECRET_KEY;
-
-        const supabaseClient = createSupabaseServerClient();
-
-        if (!supabaseUrl || !supabaseKey) {
-            return { error: { message: 'Supabase credentials not provided' } };
+        const supabase = getUserSession();
+        console.log('working');
+        
+        const userId = (await supabase).data.session?.user.id;
+        if(!userId) {
+            return { error: { message: 'User not authenticated' } };
         }
 
-        const supabaseServer = new SupabaseClient(
-            supabaseUrl,
-            supabaseKey
-        );
+        let err = "";
 
-        const auth = (await supabaseClient)?.auth;
-        const { data: userData, error: userError } = await auth.getUser();
-
-        if (userError) return;
-
-        const tweetsDB = supabaseServer.from('tweets');
-
-        const { data, error } = await tweetsDB.insert({
-            profile_id: userData?.user?.id,
-            text: tweet.toString(),
-            id: randomUUID()
+        const res = await db
+        .insert(tweets)
+        .values({
+          text: tweet.toString(),
+          id: randomUUID(),
+          profileId: userId,
+        })
+        .returning()
+        .catch((error) => {
+          console.log(error);
+          err = "something wrong with server";
         });
 
         revalidatePath('/');
+        return { data: res, error: err };
     }
 
     return <ComposeTweetForm serverAction={submitTweet} />
